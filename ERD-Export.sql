@@ -13,7 +13,7 @@ CREATE TABLE "occupation_detail" (
     "a_mean" VARCHAR   NOT NULL,
     "a_median" VARCHAR   NOT NULL,
     "h_mean" VARCHAR   NOT NULL,
-    "h_mediam" VARCHAR   NOT NULL,
+    "h_median" VARCHAR   NOT NULL,
     CONSTRAINT "pk_occupation_detail" PRIMARY KEY (
         "detail_id"
      )
