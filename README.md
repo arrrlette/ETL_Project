@@ -1,61 +1,115 @@
-# ETL_Project
+ETL Project - Final Report
+Team Members: 
+Alexandra Taft
+Anthony English
+Arlette Varela
+Nathan Bolt
 
-Guidelines for ETL Project
-This document contains guidelines, requirements, and suggestions for Project 1.
+________________________________________
 
-Team Effort
-Due to the short timeline, teamwork will be crucial to the success of this project! Work closely with your team through all phases of the project to ensure that there are no surprises at the end of the week.
-Working in a group enables you to tackle more difficult problems than you'd be able to working alone. In other words, working in a group allows you to work smart and dream big. Take advantage of it!
-
-Project Proposal
-Before you start writing any code, remember that you only have one week to complete this project. View this project as a typical assignment from work. Imagine a bunch of data came in and you and your team are tasked with migrating it to a production data base.
-Take advantage of your Instructor and TA support during office hours and class project work time. They are a valuable resource and can help you stay on track.
-
-Finding Data
-Your project must use 2 or more sources of data. We recommend the following sites to use as sources of data:
+Extract:Transform:Load - Automating Jobs Away
+August 2020
 
 
-data.world
+ 
+Overview
+The project was broken down into three main stages: 1) Extract, 2) Transform, and 3) Load.
+The datasets used combine automation probability data with a breakdown of the number of jobs by salary in  each occupation by state (within the US). For the purposes of our project we filtered down to the detailed level of occupation titles and assigned them an occupational group. We loaded the data into PgAdmin as a SQL database. 
 
 
-Kaggle
 
 
-You can also use APIs or data scraped from the web. However, get approval from your instructor first. Again, there is only a week to complete this!
 
-Data Cleanup & Analysis
-Once you have identified your datasets, perform ETL on the data. Make sure to plan and document the following:
-
-
-The sources of data that you will extract from.
+________________________________________
+DATASET(S):
+Kaggle Datasets: Occupation, Salary, and the Likelihood of Automation
 
 
-The type of transformation needed for this data (cleaning, joining, filtering, aggregating, etc).
+https://www.kaggle.com/andrewmvd/occupation-salary-and-likelihood-of-automation?select=automation_data_by_state.csv
+
+________________________________________
+
+Extract
+Our original data sources consisted of two files: 
 
 
-The type of final production database to load the data into (relational or non-relational).
+1.	automation_data_by_state.xlms: this dataset was acquired from the work of Carl Benedikt Freyand Michael A. Osborne; 
+2.	occupation_salary.csv: State employment data is from the Bureau of Labor Statistics. 
 
 
-The final tables or collections that will be used in the production database.
+These files were downloaded from Kaggle (source listed above). The xlms file was converted to a csv.  Both files were then extracted into DataFrames using pandas library in jupyter notebook.
 
 
-You will be required to submit a final technical report with the above information and steps required to reproduce your ETL process.
-
-Project Report
-At the end of the week, your team will submit a Final Report that describes the following:
-
-
-Extract: your original data sources and how the data was formatted (CSV, JSON, pgAdmin 4, etc).
+All jobs where data was not available or there were less than 10 employees were marked as zero by the originating author of this dataset.
+Transform
+After extracting the CSV’s into Pandas dataframes in Jupyter notebooks, we were ready to begin the data clean up and transformation process. 
 
 
-Transform: what data cleaning or transformation was required.
+We first created an ERD to use as a blueprint for the creation of our tables that was uploaded to our SQL database in pgAdmin 4. We then created filtered dataframes from the specified columns in our ERD.
 
 
-Load: the final database, tables/collections, and why this was chosen.
+The following clean up and transform process was performed on the automation dataframe - one SQL table was generated from this data:
+•	Removed hyphens and commas from data to ensure proper loading into sql database;
+•	Renamed columns to best match SQL tables, including adding underscores to state names consisting of more than one word;
+•	Set the index to the detail_id;
+•	converted string integers to floats (pgAdmin required dbl--float was the Pandas equivalent).
 
 
-Please upload the report to Github and submit a link to Bootcampspot.
+As far as the occupation salary data file: The original data had categories for each job title, including detail, broad, minor, and major. In order to preserve this information and have it accessible in our database, we created a total of four tables - one for each category - which we later uploaded into our SQL database. The following clean up and transform process was performed to achieve this result:
 
 
-Copyright
-Coding Boot Camp © 2019. All Rights Reserved.
+Table: occupation_detail
+•	The purpose of this table is to house the broad id, total employees,  and annual (a) & hourly (h) means and medians.
+•	Created a filtered dataframe from specific columns: detail id, occupation title (OCC_TITLE), broad id, total employees (total_emp), mean and median annual salary (a_mean and a_median), and the mean and median hourly rate (h_mean and h_median). 
+•	Renamed columns to match SQL tables;
+•	Cast ID’s as integers;
+•	Converted string integers to floats (pgAdmin required dbl--float was the pandas equivalent)
+
+
+The purpose of the remaining three tables (occupation_broad, occupation_minor and occupation_major) is to house their respective category IDs: broad, minor and major. For each of these tables, we performed the same clean up and transform process:
+•	Created a filtered dataframe from specific columns: broad/minor/or major ID and occupation title;
+•	Renamed columns to match SQL tables;
+•	Cast id’s as integers;
+•	Converted string integers to floats (pgAdmin required dbl--float was the pandas equivalent).
+
+
+
+
+
+
+
+
+
+
+Load 
+
+In the final portion of the project, we loaded our tables into a SQL database using pgAdmin 4. The reason we utilized SQL to build our database was that the wanted to use a relational database since our data was interconnected and dependent. The loading process was achieved via the following steps:
+
+
+•	A connection string was created  to PostGres within Jupyter notebooks;
+•	A SQL database titled Automation_ETL was created in pgAdmin;
+•	Tables were created in our SQL database for each of the five dataframes;
+•	Loaded each dataframe into the SQL database using the .to_sql command in Jupyter notebooks.
+
+
+The final SQL database consisted of the following tables:
+o	automation
+o	occupation_broad
+o	occupation_detail
+o	occupation_major
+o	occupation_minor
+
+
+The automation table was linked to the occupation_detail table, and the remaining category tables were linked to their parent tables. For example, the broad id connects to the broad_id in the occupation table, the minor id connects to the minor id in the occupation_broad table, etc. 
+
+
+ 
+________________________________________
+Summary
+In this project we were able to successfully extract, transform, and load our data into a database. Using a relational database allows us to link information from different tables based on common data. We can now filter our employee and salary information by category, type, and state as well as edit data in a table while maintaining the integrity of the data in the remaining tables.
+
+
+
+
+
+
