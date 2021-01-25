@@ -93,10 +93,15 @@ In the final portion of the project, we loaded our tables into a SQL database us
 
 
 The final SQL database consisted of the following tables:
+
 o	automation
+
 o	occupation_broad
+
 o	occupation_detail
+
 o	occupation_major
+
 o	occupation_minor
 
 
